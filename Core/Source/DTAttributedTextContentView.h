@@ -168,6 +168,9 @@ typedef NSUInteger DTAttributedTextContentViewRelayoutMask;
 @property (nonatomic, assign) BOOL layoutFrameHeightIsConstrainedByBounds;
 
 
+@property(nonatomic) CGFloat descentMultiplierForLayout;
+@property(nonatomic) CGFloat ascentMultiplierForLayout;
+
 /**
  @name Layouting
  */

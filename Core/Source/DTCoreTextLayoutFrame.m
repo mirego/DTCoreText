@@ -41,7 +41,9 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	if (self)
 	{
 		_frame = frame;
-		
+
+        self.ascentMultiplier = 1.0f;
+        self.descentMultiplier = 1.0f;
 		_attributedStringFragment = [layouter.attributedString mutableCopy];
 		
 		// determine correct target range
@@ -293,11 +295,14 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 		
 		BOOL usesSyntheticLeading = NO;
 		BOOL usesForcedLineHeight = NO;
-		
+
+        CGFloat actualDescent = currentLineMetrics.descent * self.descentMultiplier;
+        CGFloat actualAscent = currentLineMetrics.ascent * self.ascentMultiplier;
+
 		if (currentLineMetrics.leading == 0.0f)
 		{
 			// font has no leading, so we fake one (e.g. Helvetica)
-			CGFloat tmpHeight = currentLineMetrics.ascent + currentLineMetrics.descent;
+			CGFloat tmpHeight = actualAscent + actualDescent;
 			currentLineMetrics.leading = ceilf(0.2f * tmpHeight);
 			
 			if (currentLineMetrics.leading>20)
@@ -311,7 +316,7 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 		else
 		{
 			// make sure that we don't have less than 10% of line height as leading
-			currentLineMetrics.leading = ceilf(MAX((currentLineMetrics.ascent + currentLineMetrics.descent)*0.1f, currentLineMetrics.leading));
+			currentLineMetrics.leading = ceilf(MAX((actualAscent+ actualDescent)*0.1f, currentLineMetrics.leading));
 		}
 		
 		if (CTParagraphStyleGetValueForSpecifier(paragraphStyle, kCTParagraphStyleSpecifierMinimumLineHeight, sizeof(minLineHeight), &minLineHeight))
@@ -328,7 +333,7 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 		{
 			if (lineHeight==0)
 			{
-				lineHeight = currentLineMetrics.descent + currentLineMetrics.ascent;
+				lineHeight = actualDescent + actualAscent;
 			}
 			
 			if (isAtBeginOfParagraph)
@@ -361,7 +366,7 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 				}
 			}];
 			
-			if (lineHasAttachments && currentLineMetrics.ascent <= maxAttachmentAscender)
+			if (lineHasAttachments && actualAscent <= maxAttachmentAscender)
 			{
 				// an attachment could have a lesser ascent than the surrounding text
 				lineHeight = maxAttachmentAscender;
@@ -376,11 +381,11 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 				
 				if (lineHeight>0)
 				{
-					lineHeight -= currentLineMetrics.descent;
+					lineHeight -= actualDescent;
 				}
 				else
 				{
-					lineHeight = currentLineMetrics.ascent + currentLineMetrics.leading - currentLineMetrics.descent/2.0f;
+					lineHeight =actualAscent + currentLineMetrics.leading - actualDescent/2.0f;
 				}
 				
 				// leading is included in the lineHeight
@@ -496,6 +501,8 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 		
 		// wrap it
 		DTCoreTextLayoutLine *newLine = [[DTCoreTextLayoutLine alloc] initWithLine:line];
+        newLine.ascentMultiplier = self.ascentMultiplier;
+        newLine.descentMultiplier = self.descentMultiplier;
 		CFRelease(line);
 		
 		newLine.writingDirectionIsRightToLeft = isRTL;
@@ -519,7 +526,7 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 		newLine.baselineOrigin = lineOrigin;
 		
 		// abort layout if we left the configured frame
-		CGFloat lineBottom = lineOrigin.y + currentLineMetrics.descent;
+		CGFloat lineBottom = lineOrigin.y + actualDescent;
 		
 		if (lineBottom>maxY)
 		{
@@ -596,6 +603,8 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 		lineOrigin.x += _frame.origin.x;
 		
 		DTCoreTextLayoutLine *newLine = [[DTCoreTextLayoutLine alloc] initWithLine:(__bridge CTLineRef)oneLine];
+        newLine.ascentMultiplier = self.ascentMultiplier;
+        newLine.descentMultiplier = self.descentMultiplier;
 		newLine.baselineOrigin = lineOrigin;
 		
 		[tmpLines addObject:newLine];
@@ -1469,11 +1478,13 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	BOOL usesForcedLineHeight = NO;
 	
 	CGFloat usedLeading = line.leading;
-	
+	CGFloat actualDescent = line.descent * self.descentMultiplier;
+    CGFloat actualAscent = line.ascent * self.ascentMultiplier;
+
 	if (usedLeading == 0.0f)
 	{
 		// font has no leading, so we fake one (e.g. Helvetica)
-		CGFloat tmpHeight = line.ascent + line.descent;
+		CGFloat tmpHeight = actualAscent + actualDescent;
 		usedLeading = ceilf(0.2f * tmpHeight);
 		
 		if (usedLeading>20)
@@ -1485,7 +1496,7 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	else
 	{
 		// make sure that we don't have less than 10% of line height as leading
-		usedLeading = ceilf(MAX((line.ascent + line.descent)*0.1f, usedLeading));
+		usedLeading = ceilf(MAX((actualAscent + actualDescent)*0.1f, usedLeading));
 	}
 	
 	if (CTParagraphStyleGetValueForSpecifier(lineParagraphStyle, kCTParagraphStyleSpecifierMinimumLineHeight, sizeof(minLineHeight), &minLineHeight))
@@ -1501,7 +1512,7 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 	// is absolute line height set?
 	if (lineHeight==0)
 	{
-		lineHeight = line.descent + line.ascent + usedLeading;
+		lineHeight = actualDescent + actualAscent + usedLeading;
 	}
 	
 	if ([self isLineLastInParagraph:previousLine])
@@ -1557,10 +1568,10 @@ static BOOL _DTCoreTextLayoutFramesShouldDrawDebugFrames = NO;
 		// only if there IS a line before it AND the line height is not fixed
 		CGFloat previousLineBottom = CGRectGetMaxY(previousLine.frame);
 		
-		if (lineOrigin.y - line.ascent < previousLineBottom)
+		if (lineOrigin.y - actualAscent < previousLineBottom)
 		{
 			// move baseline origin down far enough
-			lineOrigin.y = previousLineBottom + line.ascent;
+			lineOrigin.y = previousLineBottom + actualAscent;
 		}
 	}
 	
