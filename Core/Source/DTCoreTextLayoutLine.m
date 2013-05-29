@@ -47,7 +47,8 @@
 	{
 		_line = line;
 		CFRetain(_line);
-		
+		self.ascentMultiplier = 1.0f;
+        self.descentMultiplier = 1.0f;
 		// writing direction
 		_needsToDetectWritingDirection = YES;
 	}
@@ -118,7 +119,8 @@
 	CTLineRef justifiedLine = CTLineCreateJustifiedLine(_line, justificationFactor, justificationWidth);
 	
 	DTCoreTextLayoutLine *newLine = [[DTCoreTextLayoutLine alloc] initWithLine:justifiedLine];
-	
+    newLine.ascentMultiplier = self.ascentMultiplier;
+	newLine.descentMultiplier = self.descentMultiplier;
 	CFRelease(justifiedLine);
 	
 	return newLine;
@@ -250,7 +252,8 @@
 		{
 			_width = (CGFloat)CTLineGetTypographicBounds(_line, &_ascent, &_descent, &_leading);
 			_trailingWhitespaceWidth = (CGFloat)CTLineGetTrailingWhitespaceWidth(_line);
-			
+            _ascent = _ascent * _ascentMultiplier;
+            _descent = _descent * _descentMultiplier;
 			_didCalculateMetrics = YES;
 		}
 	}
@@ -350,6 +353,8 @@
 				for (id oneRun in runs)
 				{
 					DTCoreTextGlyphRun *glyphRun = [[DTCoreTextGlyphRun alloc] initWithRun:(__bridge CTRunRef)oneRun layoutLine:self offset:offset];
+                    glyphRun.ascentMultiplier = self.ascentMultiplier;
+                    glyphRun.descentMultiplier = self.ascentMultiplier;
 					[tmpArray addObject:glyphRun];
 					
 					offset += glyphRun.frame.size.width;

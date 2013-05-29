@@ -153,6 +153,10 @@
  */
 @property (nonatomic, assign) BOOL writingDirectionIsRightToLeft;
 
+@property(nonatomic) CGFloat ascentMultiplier;
+
+@property(nonatomic) CGFloat descentMultiplier;
+
 /**
  Method to efficiently determine if the receiver is a horizontal rule.
  

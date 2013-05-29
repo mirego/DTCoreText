@@ -351,4 +351,6 @@ typedef enum
  */
 @property(nonatomic, assign)BOOL noLeadingOnFirstLine;
 
+@property(nonatomic) CGFloat descentMultiplier;
+@property(nonatomic) CGFloat ascentMultiplier;
 @end

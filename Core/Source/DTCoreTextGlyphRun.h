@@ -150,4 +150,6 @@
 @property (nonatomic, readonly) DTTextAttachment *attachment;
 
 
+@property(nonatomic) CGFloat ascentMultiplier;
+@property(nonatomic) CGFloat descentMultiplier;
 @end

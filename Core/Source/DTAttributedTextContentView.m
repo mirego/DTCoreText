@@ -85,6 +85,8 @@ static Class _layerClassToUseForDTAttributedTextContentView = nil;
 
 - (void)setup
 {
+    self.descentMultiplierForLayout = 1.0f;
+    self.ascentMultiplierForLayout = 1.0f;
 	self.contentMode = UIViewContentModeTopLeft; // to avoid bitmap scaling effect on resize
 	_shouldLayoutCustomSubviews = YES;
 	
@@ -588,6 +590,8 @@ static Class _layerClassToUseForDTAttributedTextContentView = nil;
 	// create a temporary frame, will be cached by the layouter for the given rect
 	CGRect rect = [self _frameForLayoutFrameConstraintedToWidth:width];
 	DTCoreTextLayoutFrame *tmpLayoutFrame = [self.layouter layoutFrameWithRect:rect range:NSMakeRange(0, 0)];
+    tmpLayoutFrame.descentMultiplier = self.descentMultiplierForLayout;
+    tmpLayoutFrame.ascentMultiplier = self.ascentMultiplierForLayout;
 	
 	// assign current layout frame properties to tmpLayoutFrame
 	tmpLayoutFrame.numberOfLines = _numberOfLines;

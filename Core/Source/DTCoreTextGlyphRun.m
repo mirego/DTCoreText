@@ -63,7 +63,8 @@
 	{
 		_run = run;
 		CFRetain(_run);
-		
+        _ascentMultiplier = 1.0f;
+        _descentMultiplier = 1.0f;
 		_offset = offset;
 		_line = layoutLine;
 	}
@@ -286,6 +287,8 @@
 		if (!_didCalculateMetrics)
 		{
 			_width = (CGFloat)CTRunGetTypographicBounds((CTRunRef)_run, CFRangeMake(0, 0), &_ascent, &_descent, &_leading);
+            _ascent = _ascent * _ascentMultiplier;
+            _descent = _descent * _descentMultiplier;
 			_didCalculateMetrics = YES;
 		}
 	}
