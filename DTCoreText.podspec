@@ -36,7 +36,7 @@ Pod::Spec.new do |spec|
   spec.source_files = 'Core/Source/*.{h,m,c}'
   spec.dependency 'DTFoundation/Core', '~>1.1.0'
   spec.dependency 'DTFoundation/UIKit', '~>1.1.0'
-  spec.dependency 'DTFoundation/DTHTMLParser', '~>1.1.0'
+  spec.dependency 'DTFoundation/DTHMLParser', '~>1.1.0'
   spec.dependency 'DTFoundation/DTAnimatedGIF', '~>1.1.0'
   spec.frameworks   = 'MediaPlayer', 'QuartzCore', 'CoreText', 'CoreGraphics', 'ImageIO'
   spec.requires_arc = true
