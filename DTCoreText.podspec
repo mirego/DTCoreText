@@ -37,7 +37,6 @@ Pod::Spec.new do |spec|
   spec.dependency 'DTFoundation/Core', '~>1.1.0'
   spec.dependency 'DTFoundation/UIKit', '~>1.1.0'
   spec.dependency 'DTFoundation/DTHMLParser', '~>1.1.0'
-  spec.dependency 'DTFoundation/DTAnimatedGIF', '~>1.1.0'
   spec.frameworks   = 'MediaPlayer', 'QuartzCore', 'CoreText', 'CoreGraphics', 'ImageIO'
   spec.requires_arc = true
   spec.homepage     = 'https://github.com/Cocoanetics/DTCoreText'
